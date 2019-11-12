@@ -61,9 +61,14 @@ var (
 )
 
 func main() {
-	connPort := *flag.String("p", "443", "Ports to connect, separate with comma.")
-	threads := *flag.Int("t", 5, "Threads to use.")
+	var connPort string
+	var threads int
+	var matchDomain string
+	flag.StringVar(&connPort, "p", "443", "Ports to connect, separate with comma.")
+	flag.IntVar(&threads, "t", 5, "Threads to use.")
+	flag.StringVar(&matchDomain, "d", "", "Only get subdomains end with this domain.")
 	flag.Parse()
+
 	if len(connPort) == 0 {
 		fmt.Println("Please check your ports input")
 		os.Exit(0)
@@ -87,16 +92,26 @@ func main() {
 			for addr := range jobsChan {
 				certs := getCert(addr, ports)
 				for _, c := range certs {
-					fmt.Println(c)
+					if len(matchDomain) > 0 {
+						if strings.HasSuffix(c, matchDomain) {
+							fmt.Println(c)
+						}
+					} else {
+						fmt.Println(c)
+					}
 				}
 			}
 		}()
 	}
-
-	sc := bufio.NewScanner(os.Stdin)
-	for sc.Scan() {
-		line := strings.TrimSpace(strings.ToLower(sc.Text()))
-		jobsChan <- line
+	if flag.NArg() > 0 {
+		// fetch for a single domain
+		jobsChan <- flag.Arg(0)
+	} else {
+		sc := bufio.NewScanner(os.Stdin)
+		for sc.Scan() {
+			line := strings.TrimSpace(strings.ToLower(sc.Text()))
+			jobsChan <- line
+		}
 	}
 	close(jobsChan)
 	wg.Wait()
@@ -114,7 +129,6 @@ func getCert(addr string, ports []string) []string {
 		// Obtain the connection
 		conn, err := dialContext(ctx, "tcp", addr+":"+port)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		defer conn.Close()
