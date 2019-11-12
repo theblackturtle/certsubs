@@ -84,6 +84,7 @@ func main() {
 
 	var wg sync.WaitGroup
 	jobsChan := make(chan string, threads*2)
+	seen := make(map[string]bool)
 
 	for i := 0; i < threads; i++ {
 		wg.Add(1)
@@ -92,13 +93,21 @@ func main() {
 			for addr := range jobsChan {
 				certs := getCert(addr, ports)
 				for _, c := range certs {
-					if len(matchDomain) > 0 {
-						if strings.HasSuffix(c, matchDomain) {
+					// Check is it duplicated or not
+					if _, ok := seen[c]; !ok {
+						seen[c] = true
+						// Check is it endswith matchDomain
+						if len(matchDomain) > 0 {
+							if strings.HasSuffix(c, matchDomain) {
+								fmt.Println(c)
+							}
+						} else {
 							fmt.Println(c)
 						}
 					} else {
-						fmt.Println(c)
+						continue
 					}
+
 				}
 			}
 		}()
