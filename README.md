@@ -4,7 +4,11 @@
 ```
 Usage of ./certsubs:
   -p string
-        Ports to connect, separate with comma. (Default: 8080,443) (default "443")
+        Ports to connect, separate with comma. (default "443")
   -t int
-        Threads to use. (Default: 5) (default 5)
+        Threads to use. (default 5)
+```
+### Example
+```
+cat domains.txt | ./certsubs -p 8080,443,8888 -t 10
 ```
