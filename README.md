@@ -1,5 +1,5 @@
 # certsubs
-
+A simple tool to get subdomain from SSL Certificate
 ### Usage
 ```
 Usage of ./certsubs:
