@@ -61,8 +61,8 @@ var (
 )
 
 func main() {
-	connPort := *flag.String("p", "443", "Ports to connect, separate with comma. (Default: 8080,443)")
-	threads := *flag.Int("t", 5, "Threads to use. (Default: 5)")
+	connPort := *flag.String("p", "443", "Ports to connect, separate with comma.")
+	threads := *flag.Int("t", 5, "Threads to use.")
 	flag.Parse()
 	if len(connPort) == 0 {
 		fmt.Println("Please check your ports input")
